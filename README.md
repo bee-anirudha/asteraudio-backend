@@ -25,6 +25,8 @@ Open `http://127.0.0.1:4174/` for the dashboard. `GET /health` reports whether t
 
 ## Deploy to Render
 
-Create a Node Web Service from `bee-anirudha/asteraudio-backend`. Use build command `npm install` and start command `npm start`. Set `APP_CONFIRMATION_URL=https://asteraudio.onrender.com/api/payment-confirmations` and set `CONFIRMATION_TOKEN` to the same private value configured on the Aster Audio service. Set Beeceptor's HTTP Callout target to `https://<backend-host>/webhooks/payments`, with the existing POST method, 2–5 second delay, and payload template. The Beeceptor mock response remains `202` with `{"paymentId":"PAY-9001","status":"processing"}`.
+The deployed service is at https://asteraudio-backend.onrender.com/. It uses build command `npm install` and start command `npm start`. Set `APP_CONFIRMATION_URL=https://asteraudio.onrender.com/api/payment-confirmations` and set `CONFIRMATION_TOKEN` to the same private value configured on the Aster Audio service. Beeceptor's HTTP Callout target is `https://asteraudio-backend.onrender.com/webhooks/payments`, with POST, a 2–5 second delay, and the existing payload template. The Beeceptor mock response remains `202` with `{"paymentId":"PAY-9001","status":"processing"}`.
+
+Render's free instances can sleep when idle. Open the backend dashboard before a recording take so the service is awake when Beeceptor sends its delayed callout.
 
 For inbound authentication, optionally set `BEECEPTOR_WEBHOOK_SECRET` here and add the same value as Beeceptor's `X-Demo-Secret` callout header. The backend-to-checkout confirmation always requires `CONFIRMATION_TOKEN`.
