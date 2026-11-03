@@ -14,7 +14,7 @@ async function refresh() {
     const response = await fetch('/api/confirmations', { cache: 'no-store' });
     if (!response.ok) throw new Error('Unavailable');
     const events = await response.json();
-    document.getElementById('confirmed-count').textContent = events.filter(event => event.status === 'Confirmed').length;
+    document.getElementById('confirmed-count').textContent = events.filter(event => event.status === 'Successful').length;
     document.getElementById('latest-event').textContent = events[0]?.orderId || '—';
     document.getElementById('latest-time').textContent = events[0] ? `Received ${formatter.format(new Date(events[0].receivedAt))}` : 'Waiting for a payment';
     document.getElementById('updated').textContent = `Updated ${formatter.format(new Date())}`;
@@ -44,4 +44,4 @@ async function refresh() {
 }
 
 refresh();
-setInterval(refresh, 2000);
+setInterval(refresh, 1000);

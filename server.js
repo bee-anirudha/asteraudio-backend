@@ -43,11 +43,12 @@ async function receivePayment(req, res) {
   }
 
   const { orderId, paymentId, amount, currency } = payload.data;
-  const item = { orderId, paymentId, amount, currency, receivedAt: new Date().toISOString(), status: 'Confirming', responseStatus: null };
+  const item = { orderId, paymentId, amount, currency, receivedAt: new Date().toISOString(), status: 'Pending', responseStatus: null };
   recent.unshift(item);
   if (recent.length > 50) recent.pop();
 
   try {
+    await new Promise(resolve => setTimeout(resolve, 3000));
     const response = await fetch(APP_CONFIRMATION_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Confirmation-Token': CONFIRMATION_TOKEN },
@@ -60,7 +61,7 @@ async function receivePayment(req, res) {
       console.error(`Confirmation failed for ${orderId}: checkout returned ${response.status}`);
       return json(res, 502, { confirmed: false, orderId, error: 'Checkout rejected the confirmation.' });
     }
-    item.status = 'Confirmed';
+    item.status = 'Successful';
     console.log(`Payment ${paymentId} confirmed for ${orderId}`);
     return json(res, 200, { confirmed: true, orderId, paymentId });
   } catch (error) {

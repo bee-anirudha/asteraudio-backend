@@ -1,6 +1,6 @@
 # Aster Audio Backend
 
-The separate confirmation service for the Aster Audio checkout flow. Beeceptor sends its delayed HTTP Callout here; this service validates the `payment.completed` event, records it in the payment operations dashboard, and sends a confirmation to the Aster Audio checkout service. Beeceptor receives `200` only after the checkout accepts the confirmation.
+The separate confirmation service for the Aster Audio checkout flow. Beeceptor sends its delayed HTTP Callout here; this service validates the `payment.completed` event, shows it as Pending for three seconds in the payment operations dashboard, then sends a confirmation to the Aster Audio checkout service. The dashboard shows Successful only after checkout accepts it. Beeceptor receives `200` after that confirmation.
 
 ```text
 Aster Audio checkout ── POST /payments ──> Beeceptor

@@ -36,12 +36,24 @@ test('payment event is confirmed by the separate backend before Beeceptor gets a
     const invalid = await fetch(`${base}/webhooks/payments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...event, data: { ...event.data, status: 'failed' } }) });
     assert.equal(invalid.status, 422);
     assert.equal(forwarded.length, 0);
-    const confirmed = await fetch(`${base}/webhooks/payments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(event) });
+    const startedAt = Date.now();
+    const confirmation = fetch(`${base}/webhooks/payments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(event) });
+    let pending;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const activity = await (await fetch(`${base}/api/confirmations`)).json();
+      pending = activity[0];
+      if (pending?.status === 'Pending') break;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.equal(pending?.status, 'Pending');
+    assert.equal(forwarded.length, 0);
+    const confirmed = await confirmation;
+    assert.ok(Date.now() - startedAt >= 2900);
     assert.equal(confirmed.status, 200);
     assert.deepEqual(await confirmed.json(), { confirmed: true, orderId: 'ORD-1042', paymentId: 'PAY-9001' });
     assert.deepEqual(forwarded, [event]);
     const activity = await (await fetch(`${base}/api/confirmations`)).json();
-    assert.equal(activity[0].status, 'Confirmed');
+    assert.equal(activity[0].status, 'Successful');
     assert.equal(activity[0].responseStatus, 200);
   } finally {
     backend.kill();
