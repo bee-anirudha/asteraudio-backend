@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
+const { randomInt } = require('node:crypto');
 const { spawn } = require('node:child_process');
 
 test('payment event is confirmed by the separate backend before Beeceptor gets a response', async () => {
@@ -17,10 +18,7 @@ test('payment event is confirmed by the separate backend before Beeceptor gets a
   });
   await new Promise(resolve => checkout.listen(0, '127.0.0.1', resolve));
   const checkoutPort = checkout.address().port;
-  const probe = http.createServer();
-  await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
-  const backendPort = probe.address().port;
-  await new Promise(resolve => probe.close(resolve));
+  const backendPort = randomInt(30000, 40000);
   const backend = spawn(process.execPath, ['server.js'], {
     cwd: __dirname + '/..',
     env: { ...process.env, PORT: String(backendPort), APP_CONFIRMATION_URL: `http://127.0.0.1:${checkoutPort}/api/payment-confirmations`, CONFIRMATION_TOKEN: 'local-test-token' },

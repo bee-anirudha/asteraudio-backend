@@ -25,7 +25,7 @@ Open `http://127.0.0.1:4174/` for the dashboard. `GET /health` reports whether t
 
 ## Deploy to Render
 
-The deployed service is at https://asteraudio-backend.onrender.com/. It uses build command `npm install` and start command `npm start`. Set `APP_CONFIRMATION_URL=https://asteraudio.onrender.com/api/payment-confirmations` and set `CONFIRMATION_TOKEN` to the same private value configured on the Aster Audio service. Beeceptor's HTTP Callout target is `https://asteraudio-backend.onrender.com/webhooks/payments`, with POST, a 2–5 second delay, and the existing payload template. The Beeceptor mock response remains `202` with `{"paymentId":"PAY-9001","status":"processing"}`.
+The deployed service is at https://asteraudio-backend.onrender.com/. It uses build command `npm install` and start command `npm start`. Set `APP_CONFIRMATION_URL=https://asteraudio.onrender.com/api/payment-confirmations` and set `CONFIRMATION_TOKEN` to the same private value configured on the Aster Audio service. Beeceptor's HTTP Callout target is `https://asteraudio-backend.onrender.com/webhooks/payments`, with POST and a 2–5 second delay. The immediate `202` response sets `paymentId` to `PAY-{{body 'orderId'}}`; the callout sets it to `PAY-{{oReqBody 'orderId'}}`, using the same incoming order ID for both.
 
 Render's free instances can sleep when idle. Open the backend dashboard before a recording take so the service is awake when Beeceptor sends its delayed callout.
 
